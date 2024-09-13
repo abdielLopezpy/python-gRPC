@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gRPC-Web Client</title>
+    <script src="https://unpkg.com/@improbable-eng/grpc-web-client@0.12.0/dist/grpc-web-client.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/google-protobuf@3.19.1/dist/google-protobuf.min.js"></script>
+    <script src="greet_pb.js"></script>
+    <!-- Asegúrate de que estos archivos estén disponibles -->
+    <script src="greet_grpc_web_pb.js"></script>
+</head>
+<body>
+    <h1>gRPC-Web Client</h1>
+    <input type="text" id="name" placeholder="Enter your name" />
+    <button onclick="sayHello()">Say Hello</button>
+    <p id="response"></p>
+    <script type="text/javascript">
+        // Asegúrate de que las dependencias están disponibles
+        const { grpc } = grpcWeb;
+        const { GreeterClient } = greet_pb_service;
+
+        function sayHello() {
+            const client = new GreeterClient("http://localhost:8080", {
+                transport: grpc.CrossBrowserHttpTransport({ withCredentials: false })
+            });
+
+            const request = new greet_pb.HelloRequest();
+            request.setName(document.getElementById("name").value);
+
+            client.sayHello(request, {}, (err, response) => {
+                if (err) {
+                    console.error(err);
+                    document.getElementById("response").innerText = "Error: " + err.message;
+                } else {
+                    document.getElementById("response").innerText = response.getMessage();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
